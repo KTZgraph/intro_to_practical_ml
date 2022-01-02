@@ -1,6 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-
+import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier as KNN
+from sklearn.model_selection import cross_validate
 # from webdriver_manager.chrome import ChromeDriverManager
 
 
@@ -19,6 +21,8 @@ cp_elemnts = driver.find_elements_by_class_name("patient-cp")
 trestbps_elemnts = driver.find_elements_by_class_name("patient-trestbps")
 chol_elemnts = driver.find_elements_by_class_name("patient-chol")
 fbs_elemnts = driver.find_elements_by_class_name("patient-fbs")
+restecg_elemnts = driver.find_elements_by_class_name("patient-restecg")
+
 thalach_elemnts = driver.find_elements_by_class_name("patient-thalach")
 exang_elemnts = driver.find_elements_by_class_name("patient-exang")
 oldpeak_elemnts = driver.find_elements_by_class_name("patient-oldpeak")
@@ -38,6 +42,7 @@ for i in range(len(age_elemnts)-1): #ostatni wiersz zawiera undefined data - czy
     row.append(int(trestbps_elemnts[i].text))
     row.append(int(chol_elemnts[i].text))
     row.append(int(fbs_elemnts[i].text))
+    row.append(int(restecg_elemnts[i].text))
     row.append(int(thalach_elemnts[i].text))
     row.append(int(exang_elemnts[i].text))
     row.append(float(oldpeak_elemnts[i].text))
@@ -48,4 +53,22 @@ for i in range(len(age_elemnts)-1): #ostatni wiersz zawiera undefined data - czy
 
     table.append(row)
 
-print(table)
+table_headers = ["age", "sex", "cp", "trestbps", "chol", 
+                "fbs", "restecg", "thalach", "exang", "oldpeak", 
+                "slope", "ca", "thal", "target"]
+
+df = pd.DataFrame(table, columns=table_headers)
+y = df["target"] #teraz to słownik target to klasyfikacja
+df = df.drop(["target"], axis=1) #usuwanie tego nie chcemy w modelu
+X = df
+
+
+
+#trenowanie
+classifier = KNN(n_neighbors=3) #trzy wartosci - grupy
+#walidacja - nie najlepszy sposób, ale sprawdza się przy małym zbiorze danych
+result = cross_validate(classifier, X, y, cv=3) #cv ile razy chcemy walidować, standard to 10 razy
+#accuracy jest praktycznie bezużyteczną metodą/wskaźnikiem w ML
+print(result["test_score"])
+
+# classifier.fit(X, y)
