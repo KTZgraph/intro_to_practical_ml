@@ -3,6 +3,8 @@ from selenium.webdriver.chrome.options import Options
 import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.model_selection import cross_validate
+import pickle
+
 # from webdriver_manager.chrome import ChromeDriverManager
 
 
@@ -66,9 +68,19 @@ X = df
 
 #trenowanie
 classifier = KNN(n_neighbors=3) #trzy wartosci - grupy
-#walidacja - nie najlepszy sposób, ale sprawdza się przy małym zbiorze danych
-result = cross_validate(classifier, X, y, cv=3) #cv ile razy chcemy walidować, standard to 10 razy
-#accuracy jest praktycznie bezużyteczną metodą/wskaźnikiem w ML
-print(result["test_score"])
 
-# classifier.fit(X, y)
+
+# #walidacja - nie najlepszy sposób, ale sprawdza się przy małym zbiorze danych
+# result = cross_validate(classifier, X, y, cv=3) #cv ile razy chcemy walidować, standard to 10 razy
+# #accuracy jest praktycznie bezużyteczną metodą/wskaźnikiem w ML; ale najłatwiejsdza w zrozumeiniu
+# # w rzecyzwistosci przejmujemy się precisios recole... ?
+# print(result["test_score"])
+
+
+
+classifier.fit(X, y)
+
+#zapisac model po wytrenowania
+with open("knn_heart_disease.pkl", 'wb') as file:
+    pickle.dump(classifier, file)
+
